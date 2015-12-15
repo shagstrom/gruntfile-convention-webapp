@@ -1,0 +1,43 @@
+{
+  "name": "gruntfile-convention-webapp",
+  "version": "0.0.0",
+  "description": "Grunt convetions over configuration web app",
+  "files": [
+    "gruntfile-convention-webapp.js",
+    "karma.conf.js"
+  ],
+  "main": "./gruntfile-convention-webapp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gruntfile",
+    "convention",
+    "webapp"
+  ],
+  "author": "Simon Hagstrom",
+  "license": "MIT",
+  "dependencies": {
+    "grunt": "~0.4.5",
+    "grunt-bower-task": "^0.4.0",
+    "grunt-cache-bust": "^0.6.0",
+    "grunt-contrib-clean": "^0.7.0",
+    "grunt-contrib-connect": "^0.11.2",
+    "grunt-contrib-copy": "^0.8.2",
+    "grunt-contrib-cssmin": "^0.14.0",
+    "grunt-contrib-htmlmin": "^0.6.0",
+    "grunt-contrib-jshint": "^0.11.3",
+    "grunt-contrib-less": "^1.1.0",
+    "grunt-contrib-uglify": "^0.11.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-html-angular-validate": "^0.5.7",
+    "grunt-include-source": "^0.7.1",
+    "grunt-karma": "~0.12",
+    "grunt-wiredep": "^2.0.0",
+    "jasmine": "~2.3",
+    "karma": "~0.13",
+    "karma-jasmine": "~0.3",
+    "karma-phantomjs-launcher": "~0.2",
+    "phantomjs": "~1.9"
+  }
+}

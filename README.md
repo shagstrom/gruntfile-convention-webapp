@@ -32,12 +32,12 @@ Build distribution
 
 File structure convention
 
-- - src
-  - - assets
-  - - js
-  - - less
-  - test
-package.json
-gruntfile.js
-bower.json
+-  src
+  - assets
+  - js
+  - less
+- test
+- package.json
+- gruntfile.js
+- bower.json
 

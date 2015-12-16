@@ -12,6 +12,12 @@ module.exports = function(grunt, modifyConfig) {
 	grunt.task.registerTask('build_html', [ 'htmlangular' ]);
 	grunt.task.registerTask('build_index', [ 'includeSource:build', 'wiredep:build' ]);
 
+	grunt.registerMultiTask('wiredep', 'Inject Bower components into your source code.', function () {
+		// Like grunt-wiredep, but skips assets/**/*.html
+		this.data.src = require('glob').sync(this.data.src).filter(noAssets);
+		require('wiredep')(this.options(this.data));
+	});
+
 	var config = {
 		pkg: grunt.file.readJSON('package.json'),
 		bower: {
@@ -58,8 +64,9 @@ module.exports = function(grunt, modifyConfig) {
 		watch: {
 			// Watch for changes and update build folder
 			js: { files: 'src/js/**/*.js', tasks: [ 'build_js', 'build_index' ] },
-			css: { files: 'src/less/**/*.less', tasks: [ 'build_css', 'build_index' ] },
-			html: { files: [{ src: 'src/**/*.html', filter: noAssets }], tasks: [ 'build_html', 'build_index' ] }
+			css: { files: 'src/less/**/*.less', tasks: [ 'build_css' ] },
+			assets: { files: 'src/assets/**/*.*', tasks: [ 'build_assets' ] },
+			html: { files: [ 'src/**/*.html', '!src/assets/**/*.html'], tasks: [ 'build_html', 'build_index' ] }
 		},
 		connect: {
 			// Run http server
@@ -107,7 +114,6 @@ module.exports = function(grunt, modifyConfig) {
     grunt.loadNpmTasks("grunt-html-angular-validate");
     grunt.loadNpmTasks("grunt-include-source");
     grunt.loadNpmTasks("grunt-karma");
-    grunt.loadNpmTasks("grunt-wiredep");
 
     function noAssets(file) {
     	return !file.match(/(src|build|dist)\/assets\//);

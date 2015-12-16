@@ -53,8 +53,8 @@ module.exports = function(grunt, modifyConfig) {
 		},
 		includeSource: {
 			// Add src style and script tags to index.html
-			build: { options: { basePath: 'build' }, files: [ { expand: true, cwd: 'src', src: [ '**/*!(.tmpl).html' ], dest: 'build', filter: noAssets } ] },
-			dist: { options: { basePath: 'dist' }, files: [ { expand: true, cwd: 'src', src: [ '**/*!(.tmpl).html' ], dest: 'dist', filter: noAssets } ] }
+			build: { options: { basePath: 'build' }, files: [ { expand: true, cwd: 'src', src: [ '**/*.html' ], dest: 'build', filter: noAssetsNoTmpl } ] },
+			dist: { options: { basePath: 'dist' }, files: [ { expand: true, cwd: 'src', src: [ '**/*.html' ], dest: 'dist', filter: noAssetsNoTmpl } ] }
 		},
 		wiredep: {
 			// Add bower style and script tags to index.html
@@ -117,6 +117,10 @@ module.exports = function(grunt, modifyConfig) {
 
     function noAssets(file) {
     	return !file.match(/(src|build|dist)\/assets\//);
+    }
+
+    function noAssetsNoTmpl(file) {
+    	return noAssets(file) && !file.match(/\.tmpl\.html$/);
     }
 
 	function onlyDepsFromWiredep() {

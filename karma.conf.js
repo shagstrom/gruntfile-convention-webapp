@@ -1,13 +1,18 @@
-module.exports = function(config) {
+module.exports = function(config, modifyOptions) {
 
-    var files = require('wiredep')({ devDependencies: true }).js;
-    files.push(process.cwd() + '/src/**/*.js');
-    files.push(process.cwd() + '/test/**/*.js');
-
-    config.set({
+    options = {
         frameworks: [ 'jasmine' ],
-        browsers: [ 'PhantomJS' ],
-        files: files
-    });
+        browsers: [ 'PhantomJS' ]
+    };
+
+    options.files = require('wiredep')({ devDependencies: true }).js;
+    options.files.push(process.cwd() + '/src/**/*.js');
+    options.files.push(process.cwd() + '/test/**/*.js');
+    
+    if (modifyOptions) {
+    	modifyOptions(options);
+    }
+
+    config.set(options);
 
 };

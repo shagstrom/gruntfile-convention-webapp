@@ -1,6 +1,6 @@
 {
   "name": "gruntfile-convention-webapp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Grunt convetions over configuration web app",
   "files": [
     "gruntfile-convention-webapp.js",

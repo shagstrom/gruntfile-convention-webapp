@@ -43,7 +43,7 @@ module.exports = function(grunt, modifyConfig) {
 		copy: {
 			// Copy files to build folder
 			bower: { files: [ { expand: true, src: [ 'bower_components/**/*.*' ], dest: 'build', filter: onlyDepsFromWiredep() } ] },
-			js: { files: [ { expand: true, cwd: 'src', src: [ 'js/**/*.js' ], dest: 'build' } ] },
+			js: { files: [ { expand: true, cwd: 'src', src: [ 'js/**/*.js' ], dest: 'build', filter: environment } ] },
 			assets: { files: [ { expand: true, cwd: 'src', src: [ 'assets/**/*.*' ], dest: 'build' } ] },
 			assets_dist: { files: [ { expand: true, cwd: 'build', src: [ 'assets/**/*.*' ], dest: 'dist' } ] }
 		},
@@ -121,6 +121,10 @@ module.exports = function(grunt, modifyConfig) {
 
     function noAssetsNoTmpl(file) {
     	return noAssets(file) && !file.match(/\.tmpl\.html$/);
+    }
+
+    function environment(file) {
+    	return !file.match(/env_[^\._]+\.js$/) || file.match('env_' + process.env.NODE_ENV);
     }
 
 	function onlyDepsFromWiredep() {

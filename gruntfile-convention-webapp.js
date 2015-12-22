@@ -1,13 +1,14 @@
 module.exports = function(grunt, modifyConfig) {
 
-	grunt.task.registerTask('build', [ 'clean', 'build_bower_dep', 'build_js', 'build_css', 'build_assets', 'build_html', 'build_index' ]);
+	grunt.task.registerTask('build', [ 'clean', 'build_bower_dep', 'build_js', 'build_css', 'build_tmpl', 'build_assets', 'build_html', 'build_index' ]);
 	grunt.task.registerTask('test', [ 'bower', 'karma' ]);
-	grunt.task.registerTask('run', [ 'build', 'connect', 'watch' ]);
+	grunt.task.registerTask('run', [ 'build', 'configureProxies:server', 'connect', 'watch' ]);
 	grunt.task.registerTask('dist', [ 'build', 'uglify', 'cssmin', 'copy:assets_dist', 'includeSource:dist', 'wiredep:dist', 'cacheBust', 'htmlmin' ]);
 
 	grunt.task.registerTask('build_bower_dep', [ 'bower', 'copy:bower' ]);
 	grunt.task.registerTask('build_js', [ 'jshint', 'copy:js' ]);
 	grunt.task.registerTask('build_css', [ 'less' ]);
+	grunt.task.registerTask('build_tmpl', [ ]);
 	grunt.task.registerTask('build_assets', [ 'copy:assets' ]);
 	grunt.task.registerTask('build_html', [ 'htmlangular' ]);
 	grunt.task.registerTask('build_index', [ 'includeSource:build', 'wiredep:build' ]);
@@ -70,7 +71,15 @@ module.exports = function(grunt, modifyConfig) {
 		},
 		connect: {
 			// Run http server
-			server: { options: { base: 'build' } }
+			server: {
+				options: {
+					base: 'build',
+					middleware: function (connect, options, defaultMiddleware) {
+						var proxy = require('grunt-connect-proxy/lib/utils').proxyRequest;
+						return [ proxy ].concat(defaultMiddleware);
+					}
+				}
+			}
 		},
 		uglify: {
 			// Move JS files from build to dist and minimize
@@ -114,6 +123,7 @@ module.exports = function(grunt, modifyConfig) {
     grunt.loadNpmTasks("grunt-html-angular-validate");
     grunt.loadNpmTasks("grunt-include-source");
     grunt.loadNpmTasks("grunt-karma");
+	grunt.loadNpmTasks('grunt-connect-proxy');
 
     function noAssets(file) {
     	return !file.match(/(src|build|dist)\/assets\//);

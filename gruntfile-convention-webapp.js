@@ -1,9 +1,11 @@
 module.exports = function(grunt, modifyConfig) {
 
-	grunt.task.registerTask('build', [ 'clean', 'build_bower_dep', 'build_js', 'build_css', 'build_tmpl', 'build_assets', 'build_html', 'build_index' ]);
+	var buildTasks = [ 'clean', 'build_bower_dep', 'build_js', 'build_css', 'build_tmpl', 'build_assets', 'build_html', 'build_index' ];
+	grunt.task.registerTask('build', buildTasks);
 	grunt.task.registerTask('test', [ 'bower', 'karma' ]);
 	grunt.task.registerTask('run', [ 'build', 'configureProxies:server', 'connect', 'watch' ]);
-	grunt.task.registerTask('dist', [ 'build', 'uglify', 'cssmin', 'copy:assets_dist', 'includeSource:dist', 'wiredep:dist', 'cacheBust', 'htmlmin' ]);
+	var distTasks = [ 'build', 'uglify', 'cssmin', 'copy:assets_dist', 'includeSource:dist', 'wiredep:dist', 'cacheBust', 'htmlmin' ];
+	grunt.task.registerTask('dist', distTasks);
 
 	grunt.task.registerTask('build_bower_dep', [ 'bower', 'copy:bower' ]);
 	grunt.task.registerTask('build_js', [ 'jshint', 'copy:js' ]);
@@ -103,6 +105,59 @@ module.exports = function(grunt, modifyConfig) {
 		}
 	};
 
+
+	// START GIT_MODULE SUPPORT
+
+	eachGitModule(function (git_module) {
+		var path = 'git_modules/' + git_module;
+		config.run_grunt = config.run_grunt || {};
+		config.run_grunt[git_module + '_build'] = { options: { task: [ 'build' ] }, src: [ path + '/gruntfile.js' ] };
+		'js,css,tmpl,assets'.split(',').forEach(function (type) {
+			config.run_grunt[git_module + '_build_' + type] = { options: { task: [ 'build_' + type ] }, src: [ path + '/gruntfile.js' ] };
+			config.copy['git_module_' + git_module + '_' + type] = {
+				files: [ { expand: true, src: [ path + '/build/' + type + '/**/*.*' ], rename: function (dest, src) {
+					return 'build/' + src.replace('/build', '');
+				} } ]
+			};
+			config.watch['git_module_' + git_module + '_' + type] = {
+				files: path + '/src/' + type + '**/*.*',
+				tasks: [ 'run_grunt:' + git_module + '_build_' + type, 'copy:git_module_' + git_module + '_' + type, 'build_index' ]
+			};
+		});
+
+		grunt.task.registerTask('build_git_module_' + git_module, [
+			'run_grunt:' + git_module + '_build',
+			'copy:git_module_' + git_module + '_assets',
+			'copy:git_module_' + git_module + '_css',
+			'copy:git_module_' + git_module + '_js',
+			'copy:git_module_' + git_module + '_tmpl'
+		]);
+		config.run_grunt[git_module + '_dist'] = { options: { task: [ 'dist' ] }, src: [ path + '/gruntfile.js' ] };
+		config.copy['git_module_' + git_module + '_dist'] = {
+			files: [ { expand: true, src: path + '/dist/**/*.*', filter: function (file) {
+				return !file.match('/bower-components/');
+			}, rename: function (dest, src) {
+				return 'dist/' + src.replace('/dist', '');
+			} }]
+		}
+		grunt.task.registerTask('dist_git_module_' + git_module, [
+			'run_grunt:' + git_module + '_dist',
+			'copy:git_module_' + git_module + '_dist',
+		]);
+	});
+
+	eachGitModule(function (git_module) {
+		buildTasks.splice(1, 0, 'build_git_module_' + git_module);
+		distTasks.splice(1, 0, 'dist_git_module_' + git_module);
+	});
+
+	// Override build and dist tasks
+	grunt.task.registerTask('build', buildTasks);
+	grunt.task.registerTask('dist', distTasks);
+
+	// END GIT_MODULE SUPPORT
+
+
 	if (modifyConfig) {
 		modifyConfig(config);
 	}
@@ -123,7 +178,8 @@ module.exports = function(grunt, modifyConfig) {
     grunt.loadNpmTasks("grunt-html-angular-validate");
     grunt.loadNpmTasks("grunt-include-source");
     grunt.loadNpmTasks("grunt-karma");
-	grunt.loadNpmTasks('grunt-connect-proxy');
+    grunt.loadNpmTasks('grunt-connect-proxy');
+    grunt.loadNpmTasks('grunt-run-grunt');
 
     function noAssets(file) {
     	return !file.match(/(src|build|dist)\/assets\//);
@@ -155,5 +211,11 @@ module.exports = function(grunt, modifyConfig) {
 			return wiredepFiles.indexOf(path) > -1;
 		};
 	}
+
+    function eachGitModule(callback) {
+    	if (require('fs').existsSync(process.cwd() + '/git_modules')) {
+			require('fs').readdirSync(process.cwd() + '/git_modules').forEach(callback);
+    	}
+    }
 
 };

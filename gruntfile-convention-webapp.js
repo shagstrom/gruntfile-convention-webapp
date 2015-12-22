@@ -120,7 +120,7 @@ module.exports = function(grunt, modifyConfig) {
 				} } ]
 			};
 			config.watch['git_module_' + git_module + '_' + type] = {
-				files: path + '/src/' + type + '/**/*.*',
+				files: path + '/src/' + (type === 'css' ? 'less' : type) + '/**/*.*',
 				tasks: [ 'run_grunt:' + git_module + '_build_' + type, 'copy:git_module_' + git_module + '_' + type, 'build_index' ]
 			};
 		});

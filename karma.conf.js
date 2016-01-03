@@ -6,6 +6,7 @@ module.exports = function(config, modifyOptions) {
     };
 
     options.files = require('wiredep')({ devDependencies: true }).js;
+    options.files.push(process.cwd() + '/git_modules/*/src/**/*.js');
     options.files.push(process.cwd() + '/src/**/*.js');
     options.files.push(process.cwd() + '/test/**/*.js');
     

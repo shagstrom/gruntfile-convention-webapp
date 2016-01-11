@@ -135,7 +135,7 @@ module.exports = function(grunt, modifyConfig) {
 		config.run_grunt[git_module + '_dist'] = { options: { task: [ 'dist' ] }, src: [ path + '/gruntfile.js' ] };
 		config.copy['git_module_' + git_module + '_dist'] = {
 			files: [ { expand: true, src: path + '/dist/**/*.*', filter: function (file) {
-				return !file.match('/bower-components/');
+				return !file.match('/bower_components/');
 			}, rename: function (dest, src) {
 				return 'dist/' + src.replace('/dist', '');
 			} }]

@@ -1,6 +1,6 @@
 {
   "name": "gruntfile-convention-webapp",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "Grunt convetions over configuration web app",
   "files": [
     "gruntfile-convention-webapp.js",
@@ -18,6 +18,7 @@
   "author": "Simon Hagstrom",
   "license": "MIT",
   "dependencies": {
+    "connect-modrewrite": "^0.8.5",
     "grunt": "~0.4.5",
     "grunt-bower-task": "^0.4.0",
     "grunt-cache-bust": "^0.6.0",

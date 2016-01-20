@@ -41,7 +41,7 @@ module.exports = function(grunt, modifyConfig) {
 		},
 		htmlangular: {
 			// Validate html files and angular templates
-			build: { options: { reportpath: null, reportCheckstylePath: null }, files: [{ src: [ 'src/**/*.html' ], filter: noAssets }] }
+			build: { options: { reportpath: null, reportCheckstylePath: null, customattrs: [], customtags: [] }, files: [{ src: [ 'src/**/*.html' ], filter: noAssets }] }
 		},
 		copy: {
 			// Copy files to build folder
@@ -78,7 +78,16 @@ module.exports = function(grunt, modifyConfig) {
 					base: 'build',
 					middleware: function (connect, options, defaultMiddleware) {
 						var proxy = require('grunt-connect-proxy/lib/utils').proxyRequest;
-						return [ proxy ].concat(defaultMiddleware);
+						var singlePageAppRewrite = require('connect-modrewrite')([
+							'!^/(bower_components|css|git_modules|js|tmpl|assets)/ /index.html'
+						]);
+						var configuredSinglePageAppRewrite = function(req, res, next) {
+							if (!options.singlePageApp) {
+								return next();
+							}
+							singlePageAppRewrite(req, res, next);
+						};
+						return [ proxy, configuredSinglePageAppRewrite ].concat(defaultMiddleware);
 					}
 				}
 			}

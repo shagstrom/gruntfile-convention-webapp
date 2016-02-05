@@ -209,13 +209,12 @@ module.exports = function(grunt, modifyConfig) {
 			if (!wiredepFiles) {
 				wiredepFiles = [];
 				var deps = require('wiredep')();
-				for (var type in deps) {
-					if (type !== 'packages') {
-						deps[type].forEach(function (dep) {
-							wiredepFiles.push(getRelativePath(dep));
-						});
-					}
-				}
+				var keys = Object.keys(deps.packages);
+				keys.forEach(function (key) {
+					deps.packages[key].main.forEach(function (file) {
+						wiredepFiles.push(getRelativePath(file));
+					});
+				});
 			}
 			return wiredepFiles.indexOf(path) > -1;
 		};

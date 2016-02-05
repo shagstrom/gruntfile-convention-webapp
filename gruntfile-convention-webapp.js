@@ -4,7 +4,7 @@ module.exports = function(grunt, modifyConfig) {
 	grunt.task.registerTask('build', buildTasks);
 	grunt.task.registerTask('test', [ 'bower', 'karma' ]);
 	grunt.task.registerTask('run', [ 'build', 'configureProxies:server', 'connect', 'watch' ]);
-	var distTasks = [ 'build', 'uglify', 'cssmin', 'copy:assets_dist', 'includeSource:dist', 'wiredep:dist', 'cacheBust', 'htmlmin' ];
+	var distTasks = [ 'build', 'uglify', 'cssmin', 'copy:bower_non_css_non_js_dist', 'copy:assets_dist', 'includeSource:dist', 'wiredep:dist', 'cacheBust', 'htmlmin' ];
 	grunt.task.registerTask('dist', distTasks);
 
 	grunt.task.registerTask('build_bower_dep', [ 'bower', 'copy:bower' ]);
@@ -48,7 +48,8 @@ module.exports = function(grunt, modifyConfig) {
 			bower: { files: [ { expand: true, src: [ 'bower_components/**/*.*' ], dest: 'build', filter: onlyDepsFromWiredep() } ] },
 			js: { files: [ { expand: true, cwd: 'src', src: [ 'js/**/*.js' ], dest: 'build', filter: environment } ] },
 			assets: { files: [ { expand: true, cwd: 'src', src: [ 'assets/**/*.*' ], dest: 'build' } ] },
-			assets_dist: { files: [ { expand: true, cwd: 'build', src: [ 'assets/**/*.*' ], dest: 'dist' } ] }
+			assets_dist: { files: [ { expand: true, cwd: 'build', src: [ 'assets/**/*.*' ], dest: 'dist' } ] },
+			bower_non_css_non_js_dist: { files: [ { cwd: 'build', expand: true, src: [ 'bower_components/**/*.*' ], dest: 'dist', filter: noCssNoJs } ] },
 		},
 		less: {
 			// Compile less files
@@ -148,7 +149,7 @@ module.exports = function(grunt, modifyConfig) {
 			}, rename: function (dest, src) {
 				return 'dist/' + src.replace('/dist', '');
 			} }]
-		}
+		};
 		grunt.task.registerTask('dist_git_module_' + git_module, [
 			'run_grunt:' + git_module + '_dist',
 			'copy:git_module_' + git_module + '_dist',
@@ -196,6 +197,10 @@ module.exports = function(grunt, modifyConfig) {
 
     function noAssetsNoTmpl(file) {
     	return noAssets(file) && !file.match(/\.tmpl\.html$/);
+    }
+
+    function noCssNoJs(file) {
+    	return !file.match(/\.js$/) && !file.match(/\.css$/);
     }
 
     function environment(file) {

@@ -1,6 +1,6 @@
 {
   "name": "gruntfile-convention-webapp",
-  "version": "0.5.2",
+  "version": "1.0.0",
   "description": "Grunt convetions over configuration web app",
   "files": [
     "gruntfile-convention-webapp.js",
@@ -32,7 +32,7 @@
     "grunt-contrib-less": "^1.1.0",
     "grunt-contrib-uglify": "^0.11.0",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-html-angular-validate": "^0.5.7",
+    "grunt-html": "^6.0.0",
     "grunt-include-source": "^0.7.1",
     "grunt-karma": "~0.12",
     "grunt-run-grunt": "^0.1.4",

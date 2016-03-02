@@ -12,7 +12,7 @@ module.exports = function(grunt, modifyConfig) {
 	grunt.task.registerTask('build_css', [ 'less' ]);
 	grunt.task.registerTask('build_tmpl', [ ]);
 	grunt.task.registerTask('build_assets', [ 'copy:assets' ]);
-	grunt.task.registerTask('build_html', [ 'htmlangular' ]);
+	grunt.task.registerTask('build_html', [ 'htmllint' ]);
 	grunt.task.registerTask('build_index', [ 'includeSource:build', 'wiredep:build' ]);
 
 	grunt.registerMultiTask('wiredep', 'Inject Bower components into your source code.', function () {
@@ -39,9 +39,27 @@ module.exports = function(grunt, modifyConfig) {
 			// Validate JS files
 			files: [ 'src/js/**/*.js']
 		},
-		htmlangular: {
-			// Validate html files and angular templates
-			build: { options: { reportpath: null, reportCheckstylePath: null, customattrs: [], customtags: [] }, files: [{ src: [ 'src/**/*.html' ], filter: noAssets }] }
+		htmllint: {
+			build_doc: {
+				files: [{ src: [ 'src/**/*.html' ], filter: noAssetsNoTmpl }],
+				options: {
+					ignore: [
+						/Attribute “ui-[a-z-]+” not allowed/,
+						/Attribute “ng-[a-z-]+” not allowed/
+					]
+				}
+			},
+			build_template: {
+				files: [{ src: [ 'src/**/*.tmpl.html' ], filter: noAssets }],
+				options: {
+					ignore: [
+						/Start tag seen without seeing a doctype first/,
+						/Element “head” is missing a required instance of child element/,
+						/Attribute “ui-[a-z-]+” not allowed/,
+						/Attribute “ng-[a-z-]+” not allowed/
+					]
+				}
+			}
 		},
 		copy: {
 			// Copy files to build folder
@@ -185,26 +203,26 @@ module.exports = function(grunt, modifyConfig) {
     grunt.loadNpmTasks("grunt-contrib-less");
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-watch");
-    grunt.loadNpmTasks("grunt-html-angular-validate");
+	grunt.loadNpmTasks('grunt-html');
     grunt.loadNpmTasks("grunt-include-source");
     grunt.loadNpmTasks("grunt-karma");
     grunt.loadNpmTasks('grunt-connect-proxy');
     grunt.loadNpmTasks('grunt-run-grunt');
 
     function noAssets(file) {
-    	return !file.match(/(src|build|dist)\/assets\//);
+		return !file.match(/(src|build|dist)\/assets\//);
     }
 
     function noAssetsNoTmpl(file) {
-    	return noAssets(file) && !file.match(/\.tmpl\.html$/);
+		return noAssets(file) && !file.match(/\.tmpl\.html$/);
     }
 
     function noCssNoJs(file) {
-    	return !file.match(/\.js$/) && !file.match(/\.css$/);
+		return !file.match(/\.js$/) && !file.match(/\.css$/);
     }
 
     function environment(file) {
-    	return !file.match(/env_[^\._]+\.js$/) || file.match('env_' + process.env.NODE_ENV);
+		return !file.match(/env_[^\._]+\.js$/) || file.match('env_' + process.env.NODE_ENV);
     }
 
 	function onlyDepsFromWiredep() {
@@ -226,9 +244,9 @@ module.exports = function(grunt, modifyConfig) {
 	}
 
     function eachGitModule(callback) {
-    	if (require('fs').existsSync(process.cwd() + '/git_modules')) {
+		if (require('fs').existsSync(process.cwd() + '/git_modules')) {
 			require('fs').readdirSync(process.cwd() + '/git_modules').forEach(callback);
-    	}
+		}
     }
 
 };

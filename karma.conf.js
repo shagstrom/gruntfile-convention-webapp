@@ -11,7 +11,7 @@ module.exports = function(config, modifyOptions) {
     options.files.push(process.cwd() + '/test/**/*.js');
     
     if (modifyOptions) {
-    	modifyOptions(options);
+        modifyOptions(options);
     }
 
     config.set(options);

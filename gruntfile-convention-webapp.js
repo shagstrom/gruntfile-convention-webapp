@@ -124,10 +124,11 @@ module.exports = function(grunt, modifyConfig) {
 
 	eachGitModule(function (git_module) {
 		var path = 'git_modules/' + git_module;
-		config.run_grunt = config.run_grunt || {};
-		config.run_grunt[git_module + '_build'] = { options: { task: [ 'build' ] }, src: [ path + '/gruntfile.js' ] };
+		config.shell = config.shell || {};
+
+		config.shell[git_module + '_build'] = { command: "grunt build", options: { stdout: true, execOptions: { cwd: path } } };
 		'js,css,tmpl,assets'.split(',').forEach(function (type) {
-			config.run_grunt[git_module + '_build_' + type] = { options: { task: [ 'build_' + type ] }, src: [ path + '/gruntfile.js' ] };
+			config.shell[git_module + '_build_' + type] = { command: "grunt build_" + type, options: { stdout: true, execOptions: { cwd: path } } };
 			config.copy['git_module_' + git_module + '_' + type] = {
 				files: [ { expand: true, src: [ path + '/build/' + type + '/**/*.*' ], rename: function (dest, src) {
 					return 'build/' + src.replace('/build', '');
@@ -135,18 +136,18 @@ module.exports = function(grunt, modifyConfig) {
 			};
 			config.watch['git_module_' + git_module + '_' + type] = {
 				files: path + '/src/' + (type === 'css' ? 'less' : type) + '/**/*.*',
-				tasks: [ 'run_grunt:' + git_module + '_build_' + type, 'copy:git_module_' + git_module + '_' + type, 'build_index' ]
+				tasks: [ 'shell:' + git_module + '_build_' + type, 'copy:git_module_' + git_module + '_' + type, 'build_index' ]
 			};
 		});
 
 		grunt.task.registerTask('build_git_module_' + git_module, [
-			'run_grunt:' + git_module + '_build',
+			'shell:' + git_module + '_build',
 			'copy:git_module_' + git_module + '_assets',
 			'copy:git_module_' + git_module + '_css',
 			'copy:git_module_' + git_module + '_js',
 			'copy:git_module_' + git_module + '_tmpl'
 		]);
-		config.run_grunt[git_module + '_dist'] = { options: { task: [ 'dist' ] }, src: [ path + '/gruntfile.js' ] };
+		config.shell[git_module + '_dist'] = { command: "grunt dist", options: { stdout: true, execOptions: { cwd: path } } };
 		config.copy['git_module_' + git_module + '_dist'] = {
 			files: [ { expand: true, src: path + '/dist/**/*.*', filter: function (file) {
 				return !file.match('/bower_components/');
@@ -155,7 +156,7 @@ module.exports = function(grunt, modifyConfig) {
 			} }]
 		};
 		grunt.task.registerTask('dist_git_module_' + git_module, [
-			'run_grunt:' + git_module + '_dist',
+			'shell:' + git_module + '_dist',
 			'copy:git_module_' + git_module + '_dist',
 		]);
 	});
@@ -193,6 +194,7 @@ module.exports = function(grunt, modifyConfig) {
     grunt.loadNpmTasks("grunt-include-source");
     grunt.loadNpmTasks("grunt-karma");
     grunt.loadNpmTasks('grunt-connect-proxy');
+    grunt.loadNpmTasks('grunt-shell');
 
     function noAssets(file) {
 		return !file.match(/(src|build|dist)\/assets\//);

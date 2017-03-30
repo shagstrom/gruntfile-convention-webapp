@@ -4,7 +4,7 @@ module.exports = function(grunt, modifyConfig) {
 	grunt.task.registerTask('build', buildTasks);
 	grunt.task.registerTask('test', [ 'bower', 'karma' ]);
 	grunt.task.registerTask('run', [ 'build', 'configureProxies:server', 'connect', 'watch' ]);
-	var distTasks = [ 'build', 'uglify', 'cssmin', 'copy:bower_non_css_non_js_dist', 'copy:assets_dist', 'includeSource:dist', 'wiredep:dist', 'cacheBust', 'htmlmin' ];
+	var distTasks = [ 'build', 'uglify', 'cssmin', 'copy:bower_non_css_non_js_dist', 'copy:assets_dist', 'includeSource:dist', 'wiredep:dist', 'cacheBust:dist', 'htmlmin' ];
 	grunt.task.registerTask('dist', distTasks);
 
 	grunt.task.registerTask('build_bower_dep', [ 'bower', 'copy:bower' ]);
@@ -23,23 +23,19 @@ module.exports = function(grunt, modifyConfig) {
 
 	var config = {
 		pkg: grunt.file.readJSON('package.json'),
-		bower: {
-			// Install bower dependencies
+		bower: { // Install bower dependencies
 			install: { options: { copy: false } }
 		},
-		karma: {
-			// Run tests
+		karma: { // Run tests
 			unit: { configFile: 'node_modules/gruntfile-convention-webapp/karma.conf.js' }
 		},
-		clean: {
-			// Remove build and dist folders
+		clean: { // Remove build and dist folders
 			build: [ 'build', 'dist' ]
 		},
-		jshint: {
-			// Validate JS files
+		jshint: { // Validate JS files
 			files: [ 'src/js/**/*.js']
 		},
-		htmllint: {
+		htmllint: { // Validate HTML files
 			build_doc: {
 				files: [{ src: [ 'src/**/*.html' ], filter: noAssetsNoTmpl }],
 				options: {
@@ -61,37 +57,31 @@ module.exports = function(grunt, modifyConfig) {
 				}
 			}
 		},
-		copy: {
-			// Copy files to build folder
+		copy: { // Copy files to build folder
 			bower: { files: [ { expand: true, src: [ 'bower_components/**/*.*' ], dest: 'build', filter: onlyDepsFromWiredep() } ] },
 			js: { files: [ { expand: true, cwd: 'src', src: [ 'js/**/*.js' ], dest: 'build', filter: environment } ] },
 			assets: { files: [ { expand: true, cwd: 'src', src: [ 'assets/**/*.*' ], dest: 'build' } ] },
 			assets_dist: { files: [ { expand: true, cwd: 'build', src: [ 'assets/**/*.*' ], dest: 'dist' } ] },
 			bower_non_css_non_js_dist: { files: [ { cwd: 'build', expand: true, src: [ 'bower_components/**/*.*' ], dest: 'dist', filter: noCssNoJs } ] },
 		},
-		less: {
-			// Compile less files
+		less: { // Compile less files
 			build: { files: { 'build/css/styles.css': 'src/less/styles.less' } }
 		},
-		includeSource: {
-			// Add src style and script tags to index.html
+		includeSource: { // Add src style and script tags to index.html
 			build: { options: { basePath: 'build' }, files: [ { expand: true, cwd: 'src', src: [ '**/*.html' ], dest: 'build', filter: noAssetsNoTmpl } ] },
 			dist: { options: { basePath: 'dist' }, files: [ { expand: true, cwd: 'src', src: [ '**/*.html' ], dest: 'dist', filter: noAssetsNoTmpl } ] }
 		},
-		wiredep: {
-			// Add bower style and script tags to index.html
+		wiredep: { // Add bower style and script tags to index.html
 			build: { src: 'build/**/*.html', ignorePath: /^\.\.\//, bower: {install: true} },
 			dist: { src: 'dist/**/*.html', ignorePath: /^\.\.\//, bower: {install: true} }
 		},
-		watch: {
-			// Watch for changes and update build folder
+		watch: { // Watch for changes and update build folder
 			js: { files: 'src/js/**/*.js', tasks: [ 'build_js', 'build_index' ] },
 			css: { files: 'src/less/**/*.less', tasks: [ 'build_css' ] },
 			assets: { files: 'src/assets/**/*.*', tasks: [ 'build_assets' ] },
 			html: { files: [ 'src/**/*.html', '!src/assets/**/*.html'], tasks: [ 'build_html', 'build_index' ] }
 		},
-		connect: {
-			// Run http server
+		connect: { // Run http server
 			server: {
 				options: {
 					base: 'build',
@@ -111,25 +101,21 @@ module.exports = function(grunt, modifyConfig) {
 				}
 			}
 		},
-		uglify: {
-			// Move JS files from build to dist and minimize
+		uglify: { // Move JS files from build to dist and minimize
 			js: { files: { 'dist/js/<%= pkg.name %>.js': [ 'build/js/**/*.js'] } },
 			bower: { files: [ { expand: true, cwd: 'build', src: 'bower_components/**/*.js', dest: 'dist' } ] }
 		},
-		cssmin: {
-			// Move CSS files from build to dist and minimize
+		cssmin: { // Move CSS files from build to dist and minimize
 			css: { files: { 'dist/css/<%= pkg.name %>.css': [ 'build/css/**/*.css'] } },
 			bower: { files: [ { expand: true, cwd: 'build', src: 'bower_components/**/*.css', dest: 'dist' } ] }
 		},
-		htmlmin: {
-			// Move HTML files from build to dist and minimize
+		htmlmin: { // Move HTML files from build to dist and minimize
 			options: { removeComments: true, collapseWhitespace: true },
 			templates: { files: [ { expand: true, src: 'dist/**/*.html', filter: noAssets } ] }
 		},
-		cacheBust: {
-			// Add checksum to JS and CSS files in dist folder and update index.html
-			options: { encoding: 'utf8', algorithm: 'md5', deleteOriginals: true },
-			assets: { files: [{ baseDir: 'dist', expand: true, cwd: 'dist', src: ['**/*.html'], filter: noAssets }] }
+		cacheBust: { // Add checksum to JS and CSS files in dist folder and update index.html
+			options: { baseDir: 'dist', assets: ['css/**/*', 'js/**/*', 'assets/**/*', 'bower_components/**/*'], deleteOriginals: true },
+			dist: { files: [ { expand: true, cwd: 'dist', src: ['**/*.html', '**/*.css'], filter: noAssets } ] }
 		}
 	};
 
@@ -207,7 +193,6 @@ module.exports = function(grunt, modifyConfig) {
     grunt.loadNpmTasks("grunt-include-source");
     grunt.loadNpmTasks("grunt-karma");
     grunt.loadNpmTasks('grunt-connect-proxy');
-    grunt.loadNpmTasks('grunt-run-grunt');
 
     function noAssets(file) {
 		return !file.match(/(src|build|dist)\/assets\//);

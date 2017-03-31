@@ -126,9 +126,9 @@ module.exports = function(grunt, modifyConfig) {
 		var path = 'git_modules/' + git_module;
 		config.shell = config.shell || {};
 
-		config.shell[git_module + '_build'] = { command: "grunt build", options: { stdout: true, execOptions: { cwd: path } } };
+		config.shell[git_module + '_build'] = { command: "grunt --base=" + path + " build" };
 		'js,css,tmpl,assets'.split(',').forEach(function (type) {
-			config.shell[git_module + '_build_' + type] = { command: "grunt build_" + type, options: { stdout: true, execOptions: { cwd: path } } };
+			config.shell[git_module + '_build_' + type] = { command: "grunt --base=" + path + " build_" + type };
 			config.copy['git_module_' + git_module + '_' + type] = {
 				files: [ { expand: true, src: [ path + '/build/' + type + '/**/*.*' ], rename: function (dest, src) {
 					return 'build/' + src.replace('/build', '');
@@ -147,7 +147,7 @@ module.exports = function(grunt, modifyConfig) {
 			'copy:git_module_' + git_module + '_js',
 			'copy:git_module_' + git_module + '_tmpl'
 		]);
-		config.shell[git_module + '_dist'] = { command: "grunt dist", options: { stdout: true, execOptions: { cwd: path } } };
+		config.shell[git_module + '_dist'] = { command: "grunt --base=" + path + " dist" };
 		config.copy['git_module_' + git_module + '_dist'] = {
 			files: [ { expand: true, src: path + '/dist/**/*.*', filter: function (file) {
 				return !file.match('/bower_components/');
